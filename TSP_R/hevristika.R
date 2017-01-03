@@ -1,3 +1,4 @@
+require(dplyr)
 ### HEVRISTICNE METODE TSP
 simetricna <- function(n){ #matrika, ce predpostavimo simetricni TSP, n je st. vozlisc
   A <- matrix(rep(Inf,n*n),ncol = n,nrow = n)
@@ -35,7 +36,7 @@ teza <- function(A,pot){#funkcija vrne tezo poti podano kot vektor
 }
 ### METODA NAJBLIŽJIH SOSEDOV
 
-najblizji_sosed <- function(A,z){ #TSP po metodi najblizjih sosedov, funkcija vrne pot in dolzino poti
+najblizji_sosed <- function(A,z){ #TSP po metodi najblizjih sosedov, funkcija vrne pot
   #A je matrika tez povezav, z pa vozlisce kjer zacnemo
   Q <- 1:dim(A)[1] #mnozica tock
   zacetek <- z
@@ -56,14 +57,16 @@ najblizji_sosed <- function(A,z){ #TSP po metodi najblizjih sosedov, funkcija vr
 najblizji <- function(A){ #funkcija najblizjih sosedov za vse mozne zacetke, vrne matriko v prvem stolpcu je zacetek,
   #v drugem prepotovana pot, v tretjem pa teza poti
   n <- dim(A)[1]
-  Resitev <- matrix(rep(NA,3*n),ncol=3,nrow=n)
+  zacetek <- c()
+  pot <- c()
+  teze <- c()
   for (i in 1:n){
-    Resitev[i,1] <- i
-    Resitev[i,2] <- paste0(as.character(najblizji_sosed(A,i)), collapse = "-")
-    Resitev[i,3] <- teza(A,najblizji_sosed(A,i))
+    zacetek <- append(zacetek,i)
+    pot <- append(pot,paste0(as.character(najblizji_sosed(A,i)), collapse = "-"))
+    teze <- append(teze,teza(A,najblizji_sosed(A,i)))
   }
-  colnames(Resitev) <- c("Zacetek","Pot","Teza")
-  return(Resitev)
+  tabela <- data_frame(zacetek,pot,teze)
+  return(tabela)
 }
 
 #Optimalen zacetek - potrebovali bomo pri kombinirani metodi
@@ -78,4 +81,39 @@ opt_zacetek <- function(A){
   return(which.min(razdalje))
 }
 
-### Obrati
+### SUBTOUR REVERSAL HEURISTIC
+
+reversal <- function(A,zacetna=najblizji_sosed(A,opt_zacetek(A))){ #kombinirana metoda, zacnemo s potjo, ki 
+  #je optimalna pri metodi najblizjih sosedov
+  n <- length(zacetna)
+  opt_pot <- zacetna
+  opt_teza <- teza(A,zacetna)
+  
+  #vrednosti vnesene v tabelo
+  rotacija <- c(" ")
+  pot <- paste0(as.character(zacetna), collapse = "-")
+  teza <- c(opt_teza)
+  
+  for (i in 2:(n-1)){ #koliko jih rotiramo, zacetek in konec je fiksen
+    for (j in 2:(n-i)){# zacetek "drsece" rotacije, odvisne od i, tj. koliko jih v koraku obrnemo
+      nova_pot <- c(opt_pot[1:(j-1)],rev(opt_pot[j:(j+i-1)]),opt_pot[(j+i):n])
+      nova_teza <- teza(A,nova_pot)
+      if (nova_teza < opt_teza && !is.na(nova_teza)){
+      opt_pot <- nova_pot
+      opt_teza <- nova_teza
+      #Vnasamo v tabelo
+      rotacija <- append(rotacija,paste0(as.character(rev(opt_pot[j:(j+i-1)])),collapse="-"))
+      pot <- append(pot,paste0(as.character(opt_pot), collapse = "-"))
+      teza <- append(teza,opt_teza)
+      }
+      else {
+        break #da ne mece errorjev na koncu
+      }
+    } 
+    
+  }
+  tabela <- data_frame(rotacija,pot,teza)
+  return(tabela)
+}
+
+
