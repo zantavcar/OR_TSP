@@ -1,4 +1,5 @@
 require(dplyr)
+require(lpSolve) #resevanje Madzarske metode
 ### HEVRISTICNE METODE TSP
 simetricna <- function(n){ #matrika, ce predpostavimo simetricni TSP, n je st. vozlisc
   A <- matrix(rep(Inf,n*n),ncol = n,nrow = n)
@@ -116,4 +117,28 @@ reversal <- function(A,zacetna=najblizji_sosed(A,opt_zacetek(A))){ #kombinirana 
   return(tabela)
 }
 
+### EKSAKTNI ALGORITMI (BB algoritem)
+permutacije <- function(A){ #vhod je matrika velikosti nx2 (rešitev nxn assignment problema), izhod pa vsi cikli
+  n=nrow(A)
+  perm <- list()
+  Q=A[,1]
+  i=1 #stevec da dodajamo v list
+  while (!length(Q)==0){
+    cikel <- c()
+    zacetek <- Q[1]
+    cikel <- append(cikel,zacetek)
+    Q <- setdiff(Q,zacetek)
+    indeks <- which(A[,1]==zacetek)
+    while (!A[indeks,2]==zacetek){
+      j <- A[indeks,2]
+      cikel <- append(cikel,j)
+      Q <- setdiff(Q,j)
+      indeks <- which(A[,1]==j)
+    }
+    cikel <- as.integer(append(cikel,zacetek))
+    perm[[i]] <- cikel
+    i <- i+1
+  }
+  return(perm)
+}
 
