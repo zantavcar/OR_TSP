@@ -118,7 +118,8 @@ reversal <- function(A,zacetna=najblizji_sosed(A,opt_zacetek(A))){ #kombinirana 
 }
 
 ### EKSAKTNI ALGORITMI (BB algoritem)
-permutacije <- function(A){ #vhod je matrika velikosti nx2 (rešitev nxn assignment problema), izhod pa vsi cikli
+permutacije <- function(A){ #vhod je matrika velikosti nx2 (rešitev nxn assignment problema), izhod
+  # pa list ciklov
   n=nrow(A)
   perm <- list()
   Q=A[,1]
@@ -140,5 +141,16 @@ permutacije <- function(A){ #vhod je matrika velikosti nx2 (rešitev nxn assignm
     i <- i+1
   }
   return(perm)
+}
+
+indeks_cikla <- function(l){ #indeks minimalnega podcikla v list
+  n <- length(l)
+  dolzine <- c()
+  for (i in 1:n){
+    dolzine <- append(dolzine,length(l[[i]]))
+  }
+  return(which.min(dolzine))
+  
+  
 }
 
