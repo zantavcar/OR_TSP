@@ -245,7 +245,7 @@ bb <- function(A){
   cena <- c()
   min <- reversal(A)$teza
   for (j in 1:n){
-    if ((!is.na(as.integer(k[[j]][2]))) && (as.integer(k[[j]][2])<min)){
+    if ((!is.na(as.integer(k[[j]][2]))) && (as.integer(k[[j]][2])<=min)){
       cena <- as.integer(k[[j]][2])
       min <- cena
       pot <- k[[j]][1]
@@ -258,4 +258,69 @@ bb <- function(A){
  return(c(pot,cena))
 }
   
+###PRIMERJAVE METOD
 
+
+primerjava_najblizji <- function(m){#primerjajmo kako dobra je metoda najbliznjih
+  #sosedov, naredimo m simulacij in gledamo relativno napako
+  relativna <- c()
+  for (i in 1:m){
+    A <- simetricna(10)
+    nakljucni_zacetek <- sample(1:10,1)
+    prava_vrednost <- as.numeric(bb(A)[2])
+    pot_sosed <- najblizji_sosed(A,nakljucni_zacetek)
+    pot_teza <- teza(A,pot_sosed)
+    napaka <- abs(pot_teza-prava_vrednost)/prava_vrednost
+    relativna <- append(relativna,napaka)
+  }
+  povp <- mean(relativna)
+  histogram <- hist(relativna,probability = TRUE,main = paste0("Relativna napaka metode najbližjih sosedov"),
+                    xlab = "Relativna napaka",ylab = "Gostota",breaks=10)
+  histogram <- abline(v=mean(relativna),col="red",lwd=2)
+  histogram <- legend("topright",col=c("red"), lwd=2,
+                      legend=c(paste0("Povprečje = ",round(povp,2))), cex=0.8)
+  
+  return(histogram)
+}
+
+primerjava_optnajblizji <- function(m){#primerjajmo kako dobra je metoda najbliznjih
+  #sosedov, ce zacnemo v vozliscu, ki je optimalno. naredimo m simulacij in gledamo relativno napako
+  relativna <- c()
+  for (i in 1:m){
+    A <- simetricna(10)
+    zacetek <- opt_zacetek(A)
+    prava_vrednost <- as.numeric(bb(A)[2])
+    pot_sosed <- najblizji_sosed(A,zacetek)
+    pot_teza <- teza(A,pot_sosed)
+    napaka <- abs(pot_teza-prava_vrednost)/prava_vrednost
+    relativna <- append(relativna,napaka)
+  }
+  povp <- mean(relativna)
+  histogram <- hist(relativna,probability = TRUE,main = paste0("Relativna napaka opt. metode najbližjih sosedov"),
+                    xlab = "Relativna napaka",ylab = "Gostota",breaks = 10)
+  histogram <- abline(v=mean(relativna),col="red",lwd=2)
+  histogram <- legend("topright",col=c("red"), lwd=2,
+                      legend=c(paste0("Povprečje = ",round(povp,2))), cex=0.8)
+  
+  return(histogram)
+}
+
+primerjava_reversal <- function(m){#primerjajmo kako dobra je metoda reversal
+  #naredimo m simulacij in gledamo relativno napako
+  relativna <- c()
+  for (i in 1:m){
+    A <- simetricna(10)
+    prava_vrednost <- as.numeric(bb(A)[2])
+    pot_teza <- as.numeric(reversal(A)$teza)
+    napaka <- abs(pot_teza-prava_vrednost)/prava_vrednost
+    relativna <- append(relativna,napaka)
+  }
+  povp <- mean(relativna)
+  histogram <- hist(relativna,probability = TRUE,main = paste0("Relativna napaka metode obratov"),
+                    xlab = "Relativna napaka",ylab = "Gostota",breaks = 10)
+  histogram <- abline(v=mean(relativna),col="red",lwd=2)
+  histogram <- legend("topright",col=c("red"), lwd=2,
+                      legend=c(paste0("Povprečje = ",round(povp,2))), cex=0.8)
+  
+  return(histogram)
+}
