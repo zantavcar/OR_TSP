@@ -275,7 +275,7 @@ primerjava_najblizji <- function(m){#primerjajmo kako dobra je metoda najbliznji
   }
   povp <- mean(relativna)
   histogram <- hist(relativna,probability = TRUE,main = paste0("Relativna napaka metode najbližjih sosedov"),
-                    xlab = "Relativna napaka",ylab = "Gostota",breaks=10)
+                    xlab = "Relativna napaka",ylab = "Gostota",breaks=30)
   histogram <- abline(v=mean(relativna),col="red",lwd=2)
   histogram <- legend("topright",col=c("red"), lwd=2,
                       legend=c(paste0("Povprečje = ",round(povp,2))), cex=0.8)
@@ -297,7 +297,7 @@ primerjava_optnajblizji <- function(m){#primerjajmo kako dobra je metoda najbliz
   }
   povp <- mean(relativna)
   histogram <- hist(relativna,probability = TRUE,main = paste0("Relativna napaka opt. metode najbližjih sosedov"),
-                    xlab = "Relativna napaka",ylab = "Gostota",breaks = 10)
+                    xlab = "Relativna napaka",ylab = "Gostota",breaks = 30)
   histogram <- abline(v=mean(relativna),col="red",lwd=2)
   histogram <- legend("topright",col=c("red"), lwd=2,
                       legend=c(paste0("Povprečje = ",round(povp,2))), cex=0.8)
@@ -317,7 +317,7 @@ primerjava_reversal <- function(m){#primerjajmo kako dobra je metoda reversal
   }
   povp <- mean(relativna)
   histogram <- hist(relativna,probability = TRUE,main = paste0("Relativna napaka metode obratov"),
-                    xlab = "Relativna napaka",ylab = "Gostota",breaks = 10)
+                    xlab = "Relativna napaka",ylab = "Gostota",breaks = 30)
   histogram <- abline(v=mean(relativna),col="red",lwd=2)
   histogram <- legend("topright",col=c("red"), lwd=2,
                       legend=c(paste0("Povprečje = ",round(povp,2))), cex=0.8)
