@@ -154,3 +154,63 @@ indeks_cikla <- function(l){ #indeks minimalnega podcikla v list
   
 }
 
+teza_permutacij <- function(A,resitev){ #vhod je lista permutacij
+  n <- length(resitev)
+  cena <- 0
+  for (i in 1:n){
+    cikel <- resitev[[i]]
+    cena <- cena + teza(A,cikel)
+  }
+  return(cena)
+}
+
+veja <- function(A){ #resevanje enega nivoja za eno vejo BB algoritma, vrne bodisi resitev, bodisi podproblem
+  A[!is.finite(A)]<-100 #nastavimo inf na velike vrednosti, lpSolve ne zna delati z inf
+  #IN NITI Z "PRE"VELIKIMI VREDNOSTMI!!!
+  C <-lp.assign(A,direction = "min")$solution
+  resitev <- permutacije(which(!C == 0,arr.ind = TRUE))
+  if (length(resitev)==1){ #ce imamo en sam cikel, smo dobili obhod, vrnemo pot in ceno poti
+    cena <- teza_permutacij(A,resitev)
+    pot <- paste0(as.character(resitev[[1]]),collapse = "-")
+    return(c(pot,cena))
+  }
+  else{
+  cikel <- resitev[[indeks_cikla(resitev)]]
+  lista_matrik <- list()
+  for (i in (1:(length(cikel)-1))){
+    B <- A
+    B[cikel[i],cikel[i+1]] <- 100
+    lista_matrik[[i]]<-B
+  }
+  return(lista_matrik)
+  }
+  
+}
+
+nivo <- function(A){#vhod je list matrik
+  n <- length(A)
+  lista <- list()
+  for (i in (1:n)){
+    if (is.character(A[[i]])){
+      lista[[i]] <- A[[i]]
+    }
+    else{
+      resitev <- veja(A[[i]])
+      if (is.character(resitev)){
+        lista[[i]] <- resitev
+      }
+      else{
+        a=length(resitev)
+        for (k in (0:(a-1))){
+          lista[[i+k]]<-resitev[[k+1]]
+        }
+        n <- n + (a-1)
+      }
+    }
+  }
+  return(lista)
+}
+
+#BB ALGORITEM - dodamo upper_limit + ostale omejitve,
+#ki pospesijo algoritem, ni nam treba racunati celotnega drevesa
+
