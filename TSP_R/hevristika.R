@@ -169,38 +169,53 @@ veja <- function(A){ #resevanje enega nivoja za eno vejo BB algoritma, vrne bodi
   #IN NITI Z "PRE"VELIKIMI VREDNOSTMI!!!
   C <-lp.assign(A,direction = "min")$solution
   resitev <- permutacije(which(!C == 0,arr.ind = TRUE))
+  upper <- reversal(A)$teza
   if (length(resitev)==1){ #ce imamo en sam cikel, smo dobili obhod, vrnemo pot in ceno poti
     cena <- teza_permutacij(A,resitev)
     pot <- paste0(as.character(resitev[[1]]),collapse = "-")
+    if (cena <= upper){
+      upper <- cena #NIZANJE UPPER LIMIT
     return(c(pot,cena))
+    }
+    else{
+      return(c(""))
+    }
   }
-  else{
+  else{ #sicer razbivamo najmanjsi cikel, dobimo vec manjsih podproblemov
   cikel <- resitev[[indeks_cikla(resitev)]]
   lista_matrik <- list()
   for (i in (1:(length(cikel)-1))){
     B <- A
     B[cikel[i],cikel[i+1]] <- 100
-    lista_matrik[[i]]<-B
+    B1 <- lp.assign(B)$solution
+    resitev1 <- cena <- teza_permutacij(A,permutacije(which(!B1 == 0,arr.ind = TRUE)))
+    if (resitev1 < upper){
+    lista_matrik[[i]]<-B  
+    }
+    else{
+      lista_matrik[[i]] <- c("") #ZAPIRANJE VEJE, CE JE LE TA ZE NAD RESITVIJO IZ ALGORITMA REVERSAL
+    }
+    
+  
   }
   return(lista_matrik)
   }
-  
 }
 
-nivo <- function(A){#vhod je list matrik
-  n <- length(A)
+nivo <- function(A){#vhod je nek list, v katerem imamo class character in matrix.
+  n <- length(A) #dolzina nivoja
   lista <- list()
   for (i in (1:n)){
     if (is.character(A[[i]])){
-      lista[[i]] <- A[[i]]
+      lista[[i]] <- A[[i]] #kar smo že rešili samo prepišemo
     }
     else{
       resitev <- veja(A[[i]])
       if (is.character(resitev)){
         lista[[i]] <- resitev
       }
-      else{
-        a=length(resitev)
+      else{ # dodajanje matrike v resitev
+        a=length(resitev) #na koliko vej se cepi
         for (k in (0:(a-1))){
           lista[[i+k]]<-resitev[[k+1]]
         }
@@ -213,4 +228,34 @@ nivo <- function(A){#vhod je list matrik
 
 #BB ALGORITEM - dodamo upper_limit + ostale omejitve,
 #ki pospesijo algoritem, ni nam treba racunati celotnega drevesa
+
+bb <- function(A){
+  k <- veja(A)
+  logicne <- c(FALSE)
+  while (!all(logicne)){
+    k<-nivo(k)
+    n <- length(k)
+    logicne <- c()
+  for (i in 1:n){
+    logicne[i] <- is.character(k[[i]])
+  }
+
+  }
+  pot <- c()
+  cena <- c()
+  min <- reversal(A)$teza
+  for (j in 1:n){
+    if ((!is.na(as.integer(k[[j]][2]))) && (as.integer(k[[j]][2])<min)){
+      cena <- as.integer(k[[j]][2])
+      min <- cena
+      pot <- k[[j]][1]
+    }
+    else{
+      next
+    }
+    
+  }
+ return(c(pot,cena))
+}
+  
 
