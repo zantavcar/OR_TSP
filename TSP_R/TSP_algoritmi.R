@@ -324,3 +324,7 @@ primerjava_reversal <- function(m){#primerjajmo kako dobra je metoda reversal
   
   return(histogram)
 }
+
+uvoz <- function(){ #uvozi podatke razdalj med 21 mesti v Evropi
+  return(as.matrix(eurodist))
+}
